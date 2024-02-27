@@ -1,0 +1,15 @@
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\bin\Debug\net6.0\CeskeSlova.exe
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\bin\Debug\net6.0\CeskeSlova.deps.json
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\bin\Debug\net6.0\CeskeSlova.runtimeconfig.json
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\bin\Debug\net6.0\CeskeSlova.dll
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\bin\Debug\net6.0\CeskeSlova.pdb
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.csproj.AssemblyReference.cache
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.AssemblyInfoInputs.cache
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.AssemblyInfo.cs
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.csproj.CoreCompileInputs.cache
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.dll
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\refint\CeskeSlova.dll
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.pdb
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\CeskeSlova.genruntimeconfig.cache
+C:\Users\Tucna\source\repos\CeskeSlova\CeskeSlova\obj\Debug\net6.0\ref\CeskeSlova.dll
