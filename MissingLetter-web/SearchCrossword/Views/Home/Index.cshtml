@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Search Crossword</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <input id="patternInput" class="form-control" type="text" placeholder="Enter pattern...">
+            <button id="searchButton" class="btn btn-primary mt-2">Search</button>
+            <ul id="wordList" class="list-group mt-3"></ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            document.getElementById("searchButton").addEventListener("click", function () {
+                var pattern = document.getElementById("patternInput").value;
+
+                fetch('/Home/SearchWords?pattern=' + pattern)
+                    .then(response => response.json())
+                    .then(data => {
+                        var wordList = document.getElementById("wordList");
+                        wordList.innerHTML = "";
+
+                        data.forEach(function (word) {
+                            var listItem = document.createElement("li");
+                            listItem.textContent = word;
+                            listItem.classList.add("list-group-item");
+                            wordList.appendChild(listItem);
+                        });
+                    });
+            });
+        </script>
+}

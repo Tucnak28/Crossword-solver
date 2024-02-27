@@ -1,0 +1,7 @@
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\SearchCrossword.exe
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\appsettings.Development.json
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\appsettings.json
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\SearchCrossword.dll
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\SearchCrossword.deps.json
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\SearchCrossword.runtimeconfig.json
+C:\Users\Tucna\source\repos\SearchCrossword\SearchCrossword\obj\Release\net6.0\PubTmp\Out\SearchCrossword.pdb
