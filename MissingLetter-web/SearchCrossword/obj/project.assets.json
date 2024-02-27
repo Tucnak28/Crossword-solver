@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Tucna\\source\\repos\\SearchCrossword\\SearchCrossword\\SearchCrossword.csproj",
+      "projectUniqueName": "C:\\Users\\Tucna\\source\\repos\\Crossword-solver\\MissingLetter-web\\SearchCrossword\\SearchCrossword.csproj",
       "projectName": "SearchCrossword",
-      "projectPath": "C:\\Users\\Tucna\\source\\repos\\SearchCrossword\\SearchCrossword\\SearchCrossword.csproj",
+      "projectPath": "C:\\Users\\Tucna\\source\\repos\\Crossword-solver\\MissingLetter-web\\SearchCrossword\\SearchCrossword.csproj",
       "packagesPath": "C:\\Users\\Tucna\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Tucna\\source\\repos\\SearchCrossword\\SearchCrossword\\obj\\",
+      "outputPath": "C:\\Users\\Tucna\\source\\repos\\Crossword-solver\\MissingLetter-web\\SearchCrossword\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Tucna\\AppData\\Roaming\\NuGet\\NuGet.Config",

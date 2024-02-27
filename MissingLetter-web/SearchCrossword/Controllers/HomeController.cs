@@ -55,7 +55,7 @@ namespace SearchCrossword.Controllers
 
             for (int i = 0; i < word.Length; i++)
             {
-                if (pattern[i] != '?' && pattern[i] != word[i])
+                if (pattern[i] != '.' && pattern[i] != word[i])
                 {
                     return false;
                 }

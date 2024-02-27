@@ -13,7 +13,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
+//app.UseHttpsRedirection(); //lmao, this trash just won't work with ngrok
 app.UseStaticFiles();
 
 app.UseRouting();
