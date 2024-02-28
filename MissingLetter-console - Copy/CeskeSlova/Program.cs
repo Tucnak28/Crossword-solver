@@ -24,7 +24,7 @@ static void Main(string[] args)
             "syn2000_word_abc_utf8.tsv"};
 
         // Pattern to match
-        string pattern = "ho?noho?no";
+        string pattern = "hovnoho?noahojhospo??reni";
 
         // Path to the output text file 
         string outputFilePath = "matching_words.txt";
@@ -35,20 +35,13 @@ static void Main(string[] args)
         // Load dictionary entries
         List<DictionaryEntry> dictionary = LoadDictionary(files);
 
-        using (StreamWriter writer = new StreamWriter(outputFilePath))
-        {
-            foreach (DictionaryEntry entry in dictionary)
-            {
-                // Write each entry to the file
-                writer.WriteLine($"{entry.Rank} {entry.Word}");
-            }
-        }
-        //string finalWord = RecursiveFinish(dictionary, pattern, 0);
+        
+        string finalWord = RecursiveFinish(dictionary, pattern, 0);
 
-        //Console.WriteLine("Final Word: " + finalWord);
+        Console.WriteLine("Final Word: " + finalWord);
 
         // Optionally, write the final word to a file
-        //File.WriteAllText(outputFilePath, finalWord);
+        File.WriteAllText(outputFilePath, finalWord);
     }
 
     static string RecursiveFinish(List<DictionaryEntry> dictionary, string pattern, int endWord)
@@ -65,25 +58,27 @@ static void Main(string[] args)
             string word = entry.Word;
 
             // Remove diacritics for comparison
-            string wordWithoutDiacritics = RemoveDiacritics(word);
-            string patternWithoutDiacritics = RemoveDiacritics(pattern.Substring(endWord, pattern.Length - endWord));
+            string patternWithout = pattern.Substring(endWord, pattern.Length - endWord);
 
-            if (word.Length < 2) continue; // Skipping words less than 4 characters long
+            if (word.Length < 4) continue; // Skipping words less than 4 characters long
 
-            if (IsMatch(wordWithoutDiacritics, patternWithoutDiacritics))
+            if (IsMatch(word, patternWithout))
             {
                 // Update the pattern with the matched word
                 string prefix = pattern.Substring(0, endWord);
                 string suffix = pattern.Substring(endWord + word.Length);
                 string updatedPattern = prefix + word + suffix;
 
-                // Recursively call the method with the updated pattern
-                string result = RecursiveFinish(dictionary, updatedPattern, endWord + word.Length);
 
-                Console.WriteLine(word);
+                endWord += word.Length;
+
+                // Recursively call the method with the updated pattern
+                string result = RecursiveFinish(dictionary, updatedPattern, endWord);
+
+                //Console.WriteLine(word);    
                 // If a match is found in the recursive call, return the result
                 if (!string.IsNullOrEmpty(result))
-                    return result;
+                    return RemoveDiacritics(result);
             }
         }
 
@@ -147,7 +142,7 @@ static void Main(string[] args)
                         // Parse fields and create a DictionaryEntry object
                         DictionaryEntry entry = new DictionaryEntry();
                         entry.Rank = int.Parse(fields[0]);
-                        entry.Word = fields[1];
+                        entry.Word = RemoveDiacritics(fields[1]);
                         entry.Frequency = int.Parse(fields[2]);
 
                         dictionary.Add(entry);
