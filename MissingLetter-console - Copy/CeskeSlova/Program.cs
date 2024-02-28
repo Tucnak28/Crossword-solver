@@ -5,6 +5,12 @@ using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+public class DictionaryEntry
+{
+    public int Rank { get; set; }
+    public string Word { get; set; }
+    public int Frequency { get; set; }
+}
 
 class Program
 {
@@ -20,22 +26,32 @@ static void Main(string[] args)
         // Pattern to match
         string pattern = "ho?noho?no";
 
-        // Path to the output text file
+        // Path to the output text file 
         string outputFilePath = "matching_words.txt";
 
         // Clear the content of the output file at the beginning of every session
         File.WriteAllText(outputFilePath, string.Empty);
 
-        // Call the recursive method to find matching words and build the pattern
-        string finalWord = RecursiveFinish(files, pattern, 0, 0);
+        // Load dictionary entries
+        List<DictionaryEntry> dictionary = LoadDictionary(files);
 
-        Console.WriteLine("Final Word: " + finalWord);
+        using (StreamWriter writer = new StreamWriter(outputFilePath))
+        {
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                // Write each entry to the file
+                writer.WriteLine($"{entry.Rank} {entry.Word}");
+            }
+        }
+        //string finalWord = RecursiveFinish(dictionary, pattern, 0);
+
+        //Console.WriteLine("Final Word: " + finalWord);
 
         // Optionally, write the final word to a file
-        File.WriteAllText(outputFilePath, finalWord);
+        //File.WriteAllText(outputFilePath, finalWord);
     }
 
-    static string RecursiveFinish(string[] files, string pattern, int indexFirst, int endWord)
+    static string RecursiveFinish(List<DictionaryEntry> dictionary, string pattern, int endWord)
     {
         // Base case: if the pattern contains no '?', return the pattern as is
         if (!pattern.Contains('?'))
@@ -43,41 +59,38 @@ static void Main(string[] args)
             return pattern;
         }
 
-        // Iterate through each file to find a matching word for the current pattern
-        foreach (var filePath in files)
+        // Iterate through each dictionary entry to find a matching word for the current pattern
+        foreach (var entry in dictionary)
         {
-            using (StreamReader reader = new StreamReader(filePath))
+            string word = entry.Word;
+
+            // Remove diacritics for comparison
+            string wordWithoutDiacritics = RemoveDiacritics(word);
+            string patternWithoutDiacritics = RemoveDiacritics(pattern.Substring(endWord, pattern.Length - endWord));
+
+            if (word.Length < 2) continue; // Skipping words less than 4 characters long
+
+            if (IsMatch(wordWithoutDiacritics, patternWithoutDiacritics))
             {
-                // Read and process each line in the file
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] fields = line.Split('\t');
-                    string word = fields[1];
+                // Update the pattern with the matched word
+                string prefix = pattern.Substring(0, endWord);
+                string suffix = pattern.Substring(endWord + word.Length);
+                string updatedPattern = prefix + word + suffix;
 
-                    // Remove diacritics for comparison
-                    string wordWithoutDiacritics = RemoveDiacritics(word);
-                    string patternWithoutDiacritics = RemoveDiacritics(pattern.Substring(endWord, pattern.Length - endWord));
+                // Recursively call the method with the updated pattern
+                string result = RecursiveFinish(dictionary, updatedPattern, endWord + word.Length);
 
-                    if (word.Length < 4) continue; // Skipping words less than 4 characters long
-
-                    if (IsMatch(wordWithoutDiacritics, patternWithoutDiacritics))
-                    {
-                        // Update the pattern with the matched word
-                        string prefix = pattern.Substring(0, endWord);
-                        string suffix = pattern.Substring(endWord + word.Length);
-                        string updatedPattern = prefix + word + suffix;
-
-                        // Recursively call the method with the updated pattern and index
-                        return RecursiveFinish(files, updatedPattern, indexFirst + 1, endWord + word.Length);
-                    }
-                }
+                Console.WriteLine(word);
+                // If a match is found in the recursive call, return the result
+                if (!string.IsNullOrEmpty(result))
+                    return result;
             }
         }
 
-        // If no match is found, return the original pattern
-        return pattern;
+        // If no match is found, return an empty string
+        return "";
     }
+
 
     // Method to check if a word matches a pattern
     static bool IsMatch(string word, string pattern)
@@ -117,4 +130,33 @@ static void Main(string[] args)
 
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
+    static List<DictionaryEntry> LoadDictionary(string[] files)
+    {
+        List<DictionaryEntry> dictionary = new List<DictionaryEntry>();
+
+        foreach (var filePath in files)
+        {
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] fields = line.Split('\t');
+                    if (fields.Length >= 3)
+                    {
+                        // Parse fields and create a DictionaryEntry object
+                        DictionaryEntry entry = new DictionaryEntry();
+                        entry.Rank = int.Parse(fields[0]);
+                        entry.Word = fields[1];
+                        entry.Frequency = int.Parse(fields[2]);
+
+                        dictionary.Add(entry);
+                    }
+                }
+            }
+        }
+        dictionary = dictionary.OrderBy(entry => entry.Rank).ToList();
+        return dictionary;
+    }
+
 }
