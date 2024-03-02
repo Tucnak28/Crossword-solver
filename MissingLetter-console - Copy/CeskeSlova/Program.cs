@@ -25,7 +25,8 @@ class Program
         string[] files = { "sorted_words.tsv" };
 
         // Pattern to match
-        string pattern = "jdistimkdotemi??je";
+        //string pattern = "?l?klelvr?kl?k????u";
+        string pattern = "vlkklelvr?klik????u";
 
         // Path to the output text file 
         string outputFilePath = "matching_words.txt";
@@ -70,6 +71,7 @@ class Program
         // Base case: if the pattern contains no '?', add the current word to the list of matched words
         if (!pattern.Contains(secretChar))
         {
+            Console.WriteLine(pattern);
             matchedWords.Add((pattern, score));
             return;
         }
@@ -81,6 +83,7 @@ class Program
 
             string patternWithout = pattern.Substring(endWord, pattern.Length - endWord);
 
+
             if (IsMatch(word, patternWithout))
             {
                 string prefix = pattern.Substring(0, endWord);
@@ -88,6 +91,13 @@ class Program
 
                 // Add a space after the added word
                 string updatedPattern = prefix + word + separator + suffix;
+
+                // Apply rules
+                if (!ApplyRules(updatedPattern, word))
+                {
+                    //Console.WriteLine(updatedPattern + "            " + word);
+                    continue; // Skip this dictionary entry if it doesn't meet the rules
+                }
 
                 score = entry.Frequency;
 
@@ -168,4 +178,35 @@ class Program
         string[] words = word.Split(separator);
         return words.Length;
     }
+
+    // Apply rules to filter the combinations
+    static bool ApplyRules(string pattern, string word)
+    {
+        // Define your rules here
+        // For example, you could check for minimum word length or other criteria
+        // Return true if the entry meets the rules, false otherwise
+
+        // Example rule: Check for minimum word length
+        /*if (word.Length < 2)
+        {
+            return false; // Reject dictionary entries with words less than 2 characters long
+        }*/
+
+        // Example rule: Disallow adjacent single-letter words
+        string[] words = pattern.Split(separator);
+        if (words[words.Length - 1].Length == 1 && word.Length == 1)
+        {
+            //Console.WriteLine("hmmm");
+            return false; // Reject patterns with adjacent single-letter words
+        }
+
+        if (words[words.Length - 1].Length == 2 && word.Length == 2)
+        {
+            //Console.WriteLine("hmmm");
+            return false; // Reject patterns with adjacent single-letter words
+        }
+
+        return true; // Entry meets all rules
+    }
+
 }
