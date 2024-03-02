@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
+using System.Linq;
 using System.Text;
+
 public class DictionaryEntry
 {
     public int Rank { get; set; }
@@ -14,17 +14,18 @@ public class DictionaryEntry
 
 class Program
 {
-static void Main(string[] args)
+    public static char secretChar = '?';
+    public static char separator = ' ';
+
+
+    static void Main(string[] args)
     {
+        
         // Path to your TSV file
-        string[] files = {
-            "syn2015_word_abc_utf8.tsv",
-            "syn2010_word_abc_utf8.tsv",
-            "syn2005_word_abc_utf8.tsv",
-            "syn2000_word_abc_utf8.tsv"};
+        string[] files = { "sorted_words.tsv" };
 
         // Pattern to match
-        string pattern = "hovnoho?noahojhospo??reni";
+        string pattern = "jdistimkdotemi??je";
 
         // Path to the output text file 
         string outputFilePath = "matching_words.txt";
@@ -35,62 +36,66 @@ static void Main(string[] args)
         // Load dictionary entries
         List<DictionaryEntry> dictionary = LoadDictionary(files);
 
-        
-        string finalWord = RecursiveFinish(dictionary, pattern, 0);
+        // Find all matching words for the pattern
+        List<(string word, int score)> matchedWords = FindMatchingWords(dictionary, pattern);
 
-        Console.WriteLine("Final Word: " + finalWord);
+        // Sort matched words by score (frequency)
+        matchedWords = matchedWords.OrderByDescending(w => w.score).ToList();
 
-        // Optionally, write the final word to a file
-        File.WriteAllText(outputFilePath, finalWord);
-    }
-
-    static string RecursiveFinish(List<DictionaryEntry> dictionary, string pattern, int endWord)
-    {
-        // Base case: if the pattern contains no '?', return the pattern as is
-        if (!pattern.Contains('?'))
+        // Write matched words to the output file
+        using (StreamWriter writer = new StreamWriter(outputFilePath))
         {
-            return pattern;
+            foreach ((string word, int score) in matchedWords)
+            {
+                writer.WriteLine($"{word} {score}");
+            }
         }
 
-        // Iterate through each dictionary entry to find a matching word for the current pattern
+        Console.WriteLine("Matching words found and written to matching_words.txt.");
+    }
+
+    static List<(string word, int score)> FindMatchingWords(List<DictionaryEntry> dictionary, string pattern)
+    {
+        List<(string word, int score)> matchedWords = new List<(string, int)>();
+        RecursiveMatching(dictionary, pattern, 0, matchedWords, 0);
+        return matchedWords;
+    }
+
+    static void RecursiveMatching(List<DictionaryEntry> dictionary, string pattern, int endWord, List<(string, int)> matchedWords, int score)
+    {
+        // Base case: if the pattern contains no '?', add the current word to the list of matched words
+        if (!pattern.Contains(secretChar))
+        {
+            matchedWords.Add((pattern, score));
+            return;
+        }
+
+        // Iterate through each dictionary entry to find matching words for the current pattern
         foreach (var entry in dictionary)
         {
             string word = entry.Word;
 
-            // Remove diacritics for comparison
             string patternWithout = pattern.Substring(endWord, pattern.Length - endWord);
-
-            if (word.Length < 4) continue; // Skipping words less than 4 characters long
 
             if (IsMatch(word, patternWithout))
             {
-                // Update the pattern with the matched word
                 string prefix = pattern.Substring(0, endWord);
                 string suffix = pattern.Substring(endWord + word.Length);
-                string updatedPattern = prefix + word + suffix;
 
+                // Add a space after the added word
+                string updatedPattern = prefix + word + separator + suffix;
 
-                endWord += word.Length;
+                score = entry.Frequency;
 
-                // Recursively call the method with the updated pattern
-                string result = RecursiveFinish(dictionary, updatedPattern, endWord);
-
-                //Console.WriteLine(word);    
-                // If a match is found in the recursive call, return the result
-                if (!string.IsNullOrEmpty(result))
-                    return RemoveDiacritics(result);
+                RecursiveMatching(dictionary, updatedPattern, endWord + word.Length + 1, matchedWords, score);
             }
         }
-
-        // If no match is found, return an empty string
-        return "";
     }
 
 
     // Method to check if a word matches a pattern
     static bool IsMatch(string word, string pattern)
     {
-        
         if (word.Length > pattern.Length)
         {
             return false;
@@ -100,13 +105,40 @@ static void Main(string[] args)
 
         for (int i = 0; i < word.Length; i++)
         {
-            if (pattern[i] != '?' && pattern[i] != word[i])
+            if (pattern[i] != secretChar && pattern[i] != word[i])
             {
                 return false;
             }
         }
-        //Console.WriteLine($"word: {word} pattern: {pattern}");
         return true;
+    }
+
+    static List<DictionaryEntry> LoadDictionary(string[] files)
+    {
+        List<DictionaryEntry> dictionary = new List<DictionaryEntry>();
+
+        foreach (var filePath in files)
+        {
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] fields = line.Split('\t');
+                    if (fields.Length >= 3)
+                    {
+                        DictionaryEntry entry = new DictionaryEntry();
+                        entry.Rank = int.Parse(fields[0]);
+                        entry.Word = RemoveDiacritics(fields[1]).ToLower();
+                        entry.Frequency = int.Parse(fields[2]);
+
+                        dictionary.Add(entry);
+                    }
+                }
+            }
+        }
+
+        return dictionary;
     }
 
     static string RemoveDiacritics(string text)
@@ -125,33 +157,4 @@ static void Main(string[] args)
 
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
-    static List<DictionaryEntry> LoadDictionary(string[] files)
-    {
-        List<DictionaryEntry> dictionary = new List<DictionaryEntry>();
-
-        foreach (var filePath in files)
-        {
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] fields = line.Split('\t');
-                    if (fields.Length >= 3)
-                    {
-                        // Parse fields and create a DictionaryEntry object
-                        DictionaryEntry entry = new DictionaryEntry();
-                        entry.Rank = int.Parse(fields[0]);
-                        entry.Word = RemoveDiacritics(fields[1]);
-                        entry.Frequency = int.Parse(fields[2]);
-
-                        dictionary.Add(entry);
-                    }
-                }
-            }
-        }
-        dictionary = dictionary.OrderBy(entry => entry.Rank).ToList();
-        return dictionary;
-    }
-
 }
