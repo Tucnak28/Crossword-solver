@@ -40,14 +40,18 @@ class Program
         List<(string word, int score)> matchedWords = FindMatchingWords(dictionary, pattern);
 
         // Sort matched words by score (frequency)
-        matchedWords = matchedWords.OrderByDescending(w => w.score).ToList();
+        //matchedWords = matchedWords.OrderByDescending(w => w.score).ToList();
+
+        // Sort matched words by the number of separated words
+        matchedWords = matchedWords.OrderBy(w => CountWords(w.word, separator)).ToList();
 
         // Write matched words to the output file
         using (StreamWriter writer = new StreamWriter(outputFilePath))
         {
             foreach ((string word, int score) in matchedWords)
             {
-                writer.WriteLine($"{word} {score}");
+                //writer.WriteLine($"{word} {score}");
+                writer.WriteLine($"{word}");
             }
         }
 
@@ -156,5 +160,12 @@ class Program
         }
 
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    // Method to count the number of words separated by a given separator
+    static int CountWords(string word, char separator)
+    {
+        string[] words = word.Split(separator);
+        return words.Length;
     }
 }
