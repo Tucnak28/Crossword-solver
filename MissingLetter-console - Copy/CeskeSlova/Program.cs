@@ -26,7 +26,7 @@ class Program
 
         // Pattern to match
         //string pattern = "?l?klelvr?kl?k????u";
-        string pattern = "vlkklelvr?klik????u";
+        string pattern = "ma??mele??so";
 
         // Path to the output text file 
         string outputFilePath = "matching_words.txt";
@@ -71,6 +71,9 @@ class Program
         // Base case: if the pattern contains no '?', add the current word to the list of matched words
         if (!pattern.Contains(secretChar))
         {
+            string[] separated = pattern.Split(separator);
+            if (separated[separated.Length - 1].Length == 1) return;
+
             Console.WriteLine(pattern);
             matchedWords.Add((pattern, score));
             return;
@@ -187,7 +190,7 @@ class Program
         // Return true if the entry meets the rules, false otherwise
 
         // Example rule: Check for minimum word length
-        /*if (word.Length < 2)
+        /*if (word.Length < 3)
         {
             return false; // Reject dictionary entries with words less than 2 characters long
         }*/
