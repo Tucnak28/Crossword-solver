@@ -10,6 +10,13 @@ public class DictionaryEntry
     public int Rank { get; set; }
     public string Word { get; set; }
     public int Frequency { get; set; }
+
+    public List<DictionaryEntry> Children { get; set; } // List of possible next words
+
+    public DictionaryEntry()
+    {
+        Children = new List<DictionaryEntry>();
+    }
 }
 
 class Program
@@ -26,7 +33,7 @@ class Program
 
         // Pattern to match
         //string pattern = "?l?klelvr?kl?k????u";
-        string pattern = "ma??mele??so";
+        string pattern = "ho?noho?no";
 
         // Path to the output text file 
         string outputFilePath = "matching_words.txt";
@@ -38,18 +45,18 @@ class Program
         List<DictionaryEntry> dictionary = LoadDictionary(files);
 
         // Find all matching words for the pattern
-        List<(string word, int score)> matchedWords = FindMatchingWords(dictionary, pattern);
+        List<string> matchedWords = FindMatchingWords(dictionary, pattern);
 
         // Sort matched words by score (frequency)
         //matchedWords = matchedWords.OrderByDescending(w => w.score).ToList();
 
         // Sort matched words by the number of separated words
-        matchedWords = matchedWords.OrderBy(w => CountWords(w.word, separator)).ToList();
+        matchedWords = matchedWords.OrderBy(w => CountWords(w, separator)).ToList();
 
         // Write matched words to the output file
         using (StreamWriter writer = new StreamWriter(outputFilePath))
         {
-            foreach ((string word, int score) in matchedWords)
+            foreach (var word in matchedWords)
             {
                 //writer.WriteLine($"{word} {score}");
                 writer.WriteLine($"{word}");
@@ -57,26 +64,82 @@ class Program
         }
 
         Console.WriteLine("Matching words found and written to matching_words.txt.");
+
+        // Create the root entry
+        DictionaryEntry rootEntry = new DictionaryEntry
+        {
+            Rank = 1,
+            Word = "Root",
+            Frequency = 100,
+            Children = new List<DictionaryEntry>()
+        };
+
+        // Create child entries
+        DictionaryEntry child1 = new DictionaryEntry
+        {
+            Rank = 2,
+            Word = "Child1",
+            Frequency = 50,
+            Children = new List<DictionaryEntry>()
+        };
+
+        DictionaryEntry child2 = new DictionaryEntry
+        {
+            Rank = 3,
+            Word = "Child2",
+            Frequency = 75,
+            Children = new List<DictionaryEntry>()
+        };
+
+        // Create grandchild entries
+        DictionaryEntry grandchild1 = new DictionaryEntry
+        {
+            Rank = 4,
+            Word = "Grandchild1",
+            Frequency = 25,
+            Children = new List<DictionaryEntry>()
+        };
+
+        DictionaryEntry grandchild2 = new DictionaryEntry
+        {
+            Rank = 5,
+            Word = "Grandchild2",
+            Frequency = 30,
+            Children = new List<DictionaryEntry>()
+        };
+
+        // Add grandchild entries to child1
+        child1.Children.Add(grandchild1);
+        child1.Children.Add(grandchild2);
+
+        // Add child entries to the root entry
+        rootEntry.Children.Add(child1);
+        rootEntry.Children.Add(child2);
+
+        //PrintWordTree(rootEntry);
     }
 
-    static List<(string word, int score)> FindMatchingWords(List<DictionaryEntry> dictionary, string pattern)
+    static List<string> FindMatchingWords(List<DictionaryEntry> dictionary, string pattern)
     {
-        List<(string word, int score)> matchedWords = new List<(string, int)>();
-        RecursiveMatching(dictionary, pattern, 0, matchedWords, 0);
+        List<string> matchedWords = new List<string>();
+        List<DictionaryEntry> wordTree = new List<DictionaryEntry>();
+        RecursiveMatching(dictionary, wordTree, pattern, 0, matchedWords, 0);
+
+        foreach (var entry in wordTree)
+        {
+            PrintWordTree(entry); // Print the word tree
+        }
+
         return matchedWords;
     }
 
-    static void RecursiveMatching(List<DictionaryEntry> dictionary, string pattern, int endWord, List<(string, int)> matchedWords, int score)
+    static DictionaryEntry RecursiveMatching(List<DictionaryEntry> dictionary, List<DictionaryEntry> wordTree, string pattern, int endWord, List<string> matchedWords, int nested, DictionaryEntry previousWord = null)
     {
         // Base case: if the pattern contains no '?', add the current word to the list of matched words
         if (!pattern.Contains(secretChar))
         {
-            string[] separated = pattern.Split(separator);
-            if (separated[separated.Length - 1].Length == 1) return;
-
-            Console.WriteLine(pattern);
-            matchedWords.Add((pattern, score));
-            return;
+            matchedWords.Add((pattern));
+            return previousWord;
         }
 
         // Iterate through each dictionary entry to find matching words for the current pattern
@@ -95,16 +158,45 @@ class Program
                 // Add a space after the added word
                 string updatedPattern = prefix + word + separator + suffix;
 
-                // Apply rules
-                if (!ApplyRules(updatedPattern, word))
+
+
+
+
+                DictionaryEntry result = RecursiveMatching(dictionary, wordTree, updatedPattern, endWord + word.Length + 1, matchedWords, nested + 1, entry);
+
+                //Console.WriteLine($"word: {entry.Word}           level: {nested}");
+
+                if (result == null) continue;
+
+                previousWord.Children.Add(entry);
+                if (nested == 1)
                 {
-                    //Console.WriteLine(updatedPattern + "            " + word);
-                    continue; // Skip this dictionary entry if it doesn't meet the rules
+                    wordTree.Add(previousWord);
                 }
 
-                score = entry.Frequency;
+            }
+        }
 
-                RecursiveMatching(dictionary, updatedPattern, endWord + word.Length + 1, matchedWords, score);
+        return null;
+    }
+
+    static void PrintWordTree(DictionaryEntry root)
+    {
+        if (root == null)
+            return;
+
+        Stack<(DictionaryEntry entry, string indent, int level)> stack = new Stack<(DictionaryEntry, string, int)>();
+        stack.Push((root, "", 0));
+
+        while (stack.Count > 0)
+        {
+            var (currentEntry, currentIndent, level) = stack.Pop();
+
+            Console.WriteLine($"{currentIndent}{currentEntry.Word} (Level: {level})");
+
+            foreach (var childEntry in currentEntry.Children)
+            {
+                stack.Push((childEntry, currentIndent + "  ", level + 1));
             }
         }
     }
